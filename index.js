@@ -45,6 +45,11 @@ const renderGrid = () => {
         clickHandler(e, i, j, gridItem);
       });
 
+      gridItem.addEventListener("contextmenu", (e) => {
+        flag(e, i, j);
+        e.preventDefault();
+      });
+
       row.append(gridItem);
     }
     gameGrid.append(row);
@@ -54,10 +59,9 @@ renderGrid();
 
 /*************** CLICK EVENT LISTENER FUNCTION ***************/
 
-let bombsCounter = 0;
-
 const clickHandler = (e, i, j) => {
   console.log("gridItem", i, j);
+  console.log("Event", e);
   if (bombsArray[i][j] === false) {
     e.target.style.backgroundColor = "green";
 
@@ -110,6 +114,10 @@ const findAllBombs = () => {
   }
 };
 
+const flag = (e, i, j) => {
+  document.getElementById(`gridItem-${i}-${j}`).innerText = "Flag";
+};
+
 const detectEmptyBombArea = (e, i, j) => {
   if (
     bombsArray[i][j + 1] === bombsArray[i][j - 1] &&
@@ -122,6 +130,7 @@ const detectEmptyBombArea = (e, i, j) => {
 };
 
 const detectClosestBomb = (e, i, j) => {
+  let bombsCounter = 0;
   if (bombsArray[i][j + 1] !== bombsArray[i][j - 1]) {
     bombsCounter++;
     console.log("Right-Left Check:", bombsCounter);
@@ -145,6 +154,7 @@ const detectClosestBomb = (e, i, j) => {
 };
 
 const detectLeftColBombs = (e, i, j) => {
+  let bombsCounter = 0;
   if (bombsArray[i][j + 1] === true) {
     bombsCounter++;
     console.log(`gridItem${i}-${j + 1}`, bombsCounter);
@@ -163,6 +173,7 @@ const detectLeftColBombs = (e, i, j) => {
 };
 
 const detectRightColBombs = () => {
+  let bombsCounter = 0;
   if (bombsArray[i][j - 1] === true) {
     bombsCounter++;
     console.log(`gridItem${i}-${j + 1}`, bombsCounter);
@@ -181,6 +192,7 @@ const detectRightColBombs = () => {
 };
 
 const detectTopRowBombs = (e, i, j) => {
+  let bombsCounter = 0;
   if (bombsArray[i][j - 1] === undefined) {
     if (bombsArray[i][j + 1] === true) {
       bombsCounter++;
@@ -238,6 +250,7 @@ const detectTopRowBombs = (e, i, j) => {
 };
 
 const detectBottomRowBombs = (e, i, j) => {
+  let bombsCounter = 0;
   if (bombsArray[i][j - 1] === undefined) {
     if (bombsArray[i][j + 1] === true) {
       bombsCounter++;
