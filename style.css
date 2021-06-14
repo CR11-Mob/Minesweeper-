@@ -1,6 +1,6 @@
 * {
   box-sizing: border-box;
-  border: 1px solid red;
+  /* border: 1px solid red; */
 }
 
 body {
@@ -13,6 +13,10 @@ body {
   /* background-color: rgb(17,20,53); */
 }
 
+h3 {
+  margin: 0px;
+}
+
 #container {
   display: flex;
   flex-direction: column;
@@ -21,29 +25,52 @@ body {
   justify-content: center;
   align-items: center;
   /* background-color: #c4b7a6; */
-  background-color: #e6e2d3;
+  /* background-color: #e6e2d3; */
+  background-color: rgba(47, 57, 74, 1);
   /* background-color: #b9936c;
   background-color: #dac292; */
+}
+
+#headArea {
+  display: flex;
+  height: 10%;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  color: whitesmoke;
+  letter-spacing: 1px;
+}
+
+.timer-icon {
+  height: 50%;
+  width: 3%;
+  background: url(./images/timer_white_24dp.svg) no-repeat;
+  background-size: 70%;
+  background-position: center;
+}
+
+#timer {
+  display: flex;
+  height: 50%;
+  width: 5%;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 #mainContent {
   display: flex;
   flex-direction: column;
-  height: 90%;
+  height: 70%;
   width: 60%;
-}
-
-#headArea {
-  height: 30%;
-  width: 100%;
 }
 
 #gridArea {
   display: flex;
-  height: 70%;
+  height: 100%;
   width: 100%;
   justify-content: center;
   align-items: center;
+  /* transform: rotate(180deg); */
 }
 
 #gameGrid {
@@ -51,6 +78,7 @@ body {
   flex-direction: column;
   height: 100%;
   width: 50%;
+  /* transform: rotate(180deg); */
 }
 
 .grid-row {
@@ -59,9 +87,256 @@ body {
 }
 
 .grid-item {
+  display: flex;
   height: 100%;
+  /* background-color: rgba(129, 209, 253, 1); */
+  /* background-color: rgba(69, 84, 109, 1); */
+  background-color: rgba(84, 102, 133, 1);
+  border: 5px solid rgba(47, 57, 74, 1);
+  border-radius: 20px;
+  justify-content: center;
+  align-items: center;
+
+  font-family: "Rubik", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
-.color {
-  background-color: red;
+.grid-item:hover {
+  background-color: rgba(129, 209, 253, 1);
+}
+
+.emoji {
+  /* background-color: rgb(79, 233, 79); */
+  background-image: url(/images/Minesweeper-emoji.png);
+  background-repeat: no-repeat;
+  background-size: 50%;
+  background-position: center;
+}
+
+.bomb {
+  /* background-color: rgba(206, 99, 82, 1); */
+  background-color: rgb(230, 85, 63);
+  background-image: url(/images/Minesweeper-Bomb2.png);
+  background-repeat: no-repeat;
+  background-size: 50%;
+  background-position: center;
+}
+
+.flag {
+  background-color: rgba(129, 209, 253, 1);
+  background-image: url(/images/Minesweeper-Flag.png);
+  background-repeat: no-repeat;
+  background-size: 50%;
+  background-position: center;
+}
+
+#instruction {
+  display: flex;
+  height: 10%;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 100;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 3px;
+  /* word-spacing: 3px; */
+}
+
+/*************** OVERLAY ***************/
+
+.overlay {
+  display: flex;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  /* overflow: auto; */
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin: auto;
+  padding: 0;
+  width: 60%;
+  height: 70%;
+}
+
+/*************** GAME START ***************/
+
+.gameStart-text {
+  display: flex;
+  height: 50%;
+  width: 100%;
+  position: relative;
+  justify-content: center;
+  align-items: flex-end;
+
+  font-size: 5rem;
+  color: whitesmoke;
+
+  animation-name: animatetop;
+  animation-duration: 1s;
+  transition-timing-function: ease-in;
+}
+
+.game-start {
+  /* display: flex; */
+  position: relative;
+  text-align: center;
+  height: 50%;
+  width: 100%;
+  font-size: 1.5rem;
+  /* justify-content: center; */
+  font-weight: 600;
+  /* color: rgba(231, 231, 231, 0.8); */
+  color: rgba(79, 233, 79, 0.8);
+  animation-name: animateBottom;
+  animation-duration: 1s;
+  transition-timing-function: ease-in;
+}
+
+.game-start span:hover {
+  color: rgba(79, 233, 79, 1);
+}
+
+/************** GAME OVER ***************/
+
+.gameOver-text {
+  display: flex;
+  height: 50%;
+  width: 100%;
+  position: relative;
+  justify-content: center;
+  align-items: flex-end;
+
+  font-size: 5rem;
+  color: rgb(255, 34, 0);
+
+  animation-name: animatetop;
+  animation-duration: 0.7s;
+  transition-timing-function: ease-in;
+}
+
+.game-restart {
+  /* display: flex; */
+  position: relative;
+  text-align: center;
+  height: 50%;
+  width: 100%;
+  font-size: 1.5rem;
+  /* justify-content: center; */
+  font-weight: 600;
+  color: rgba(231, 231, 231, 0.8);
+  animation-name: animateBottom;
+  animation-duration: 0.7s;
+  transition-timing-function: ease-in;
+}
+
+.game-restart span:hover {
+  color: rgba(231, 231, 231, 1);
+}
+
+/*************** GAME WIN ***************/
+
+.gameWin-text {
+  display: flex;
+  height: 50%;
+  width: 100%;
+  position: relative;
+  justify-content: center;
+  align-items: flex-end;
+
+  font-size: 5rem;
+  color: rgb(79, 233, 79);
+
+  animation-name: animatetop;
+  animation-duration: 0.7s;
+  transition-timing-function: ease-in;
+}
+
+.play-again {
+  /* display: flex; */
+  position: relative;
+  text-align: center;
+  height: 50%;
+  width: 100%;
+  font-size: 1.5rem;
+  /* justify-content: center; */
+  font-weight: 600;
+  color: rgba(231, 231, 231, 0.8);
+  animation-name: animateBottom;
+  animation-duration: 0.7s;
+  transition-timing-function: ease-in;
+}
+
+.play-again span:hover {
+  color: rgba(231, 231, 231, 1);
+}
+
+/********** ANIMATION RETURN CLASSES **********/
+
+.return-top {
+  animation-name: animateReturnTop;
+  animation-duration: 0.8s;
+  transition-timing-function: ease-out;
+}
+
+.return-bottom {
+  animation-name: animateReturnBottom;
+  animation-duration: 0.8s;
+  transition-timing-function: ease-out;
+}
+
+/*************** Animation ***************/
+
+@keyframes animatetop {
+  from {
+    top: -500px;
+    opacity: 1;
+  }
+  to {
+    top: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes animateReturnTop {
+  from {
+    top: 0;
+    opacity: 1;
+  }
+  to {
+    top: -500px;
+    opacity: 1;
+  }
+}
+
+@keyframes animateBottom {
+  from {
+    bottom: -500px;
+    opacity: 1;
+  }
+  to {
+    bottom: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes animateReturnBottom {
+  from {
+    bottom: 0;
+    opacity: 1;
+  }
+  to {
+    bottom: -500px;
+    opacity: 1;
+  }
 }

@@ -19,12 +19,28 @@
   </head>
   <body>
     <div id="container">
+      <div class="overlay">
+        <div class="content">
+          <div id="gameStartText" class="gameStart-text">
+            <h3>Minesweeper</h3>
+          </div>
+          <div id="gameStart" class="game-start">
+            <span id="start">Start</span>
+          </div>
+        </div>
+      </div>
+      <div id="headArea">
+        <span class="timer-icon"></span>
+        <span id="timer"></span>
+      </div>
       <main id="mainContent">
-        <div id="headArea"></div>
         <div id="gridArea">
           <div id="gameGrid"></div>
         </div>
       </main>
+      <div id="instruction">
+        <p>Dig all areas... without hitting any mine.</p>
+      </div>
     </div>
     <script src="index.js"></script>
   </body>

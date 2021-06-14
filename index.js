@@ -6,9 +6,27 @@ const headArea = document.getElementById("headArea");
 const gridArea = document.getElementById("gridArea");
 const gameGrid = document.getElementById("gameGrid");
 
-let size = 6;
+const gameStartText = document.getElementById("gameStartText");
+const gameStart = document.getElementById("gameStart");
+const gameStartBtn = document.getElementById("start");
+const overlay = document.querySelector(".overlay");
+
+const timer = document.getElementById("timer");
+
+/*************** GAME START ***************/
+
+gameStartBtn.addEventListener("click", () => {
+  startTimer();
+  setTimeout(() => {
+    overlay.style.display = "none";
+  }, 600);
+  gameStartText.classList.add("return-top");
+  gameStart.classList.add("return-bottom");
+});
 
 /*************** DYNAMIC ARRAY ***************/
+
+let size = 6;
 
 const dynamicArray = (size) => {
   arr = [];
@@ -18,9 +36,8 @@ const dynamicArray = (size) => {
   }
   return arr;
 };
-
+let winCheckArray = dynamicArray(size);
 let bombsArray = dynamicArray(size);
-console.log(bombsArray);
 
 /*************** DYNAMIC GRID RENDERING ***************/
 
@@ -60,12 +77,13 @@ renderGrid();
 /*************** CLICK EVENT LISTENER FUNCTION ***************/
 
 const clickHandler = (e, i, j) => {
-  console.log("gridItem", i, j);
-  console.log("Event", e);
+  // console.log("gridItem", i, j);
   if (bombsArray[i][j] === false) {
-    e.target.style.backgroundColor = "green";
+    winCheckArray[i][j] = false;
 
-    // detectEmptyBombArea(e, i, j);
+    if (e.target.classList.contains("flag")) {
+      e.target.classList.remove("flag");
+    }
 
     if (bombsArray[i - 1] === undefined) {
       detectTopRowBombs(e, i, j);
@@ -81,10 +99,118 @@ const clickHandler = (e, i, j) => {
     } else if (bombsArray[i][j + 1] === undefined) {
       detectRightColBombs(e, i, j);
     }
+
+    if (e.target.innerHTML == "") {
+      e.target.style.backgroundColor = "rgb(79, 233, 79)";
+      e.target.classList.add("emoji");
+    } else if (e.target.innerHTML !== null) {
+      e.target.style.backgroundColor = "rgb(233, 233, 54)";
+    }
   } else if (bombsArray[i][j] === true) {
-    // e.target.style.backgroundColor = "red";
     findAllBombs();
+    gameOver();
   }
+
+  if (JSON.stringify(winCheckArray) == JSON.stringify(bombsArray)) {
+    gameWin();
+  }
+};
+
+/*************** START GAME TIMER ***************/
+
+let interval = null;
+let mins = 0;
+let secs = 0;
+
+const startTimer = () => {
+  interval = setInterval(() => {
+    console.log("interval start");
+    let time = ("00" + mins).substr(-2) + ":" + ("00" + secs).substr(-2);
+    timer.innerText = time;
+    secs++;
+
+    if (secs >= 59) {
+      secs = 0;
+      mins++;
+    }
+    if (mins >= 60) {
+      mins = 0;
+      secs = 0;
+      gameOver();
+    }
+  }, 1000);
+};
+let endTimer = () => clearInterval(interval);
+
+/*************** GAME WINNER DISPLAY ***************/
+
+const gameWin = () => {
+  let overlay = document.createElement("div");
+  overlay.className = "overlay";
+
+  let content = document.createElement("div");
+  content.id = "gameWinContent";
+  content.className = "content";
+
+  let gameWinText = document.createElement("div");
+  gameWinText.className = "gameWin-text";
+
+  gameWinText.innerHTML = `<h3>Great! You Win.</h3>`;
+
+  let playAgain = document.createElement("div");
+  playAgain.className = "play-again";
+
+  playAgain.innerHTML = `<span id = "play">Play Again</span>`;
+
+  overlay.append(content);
+  content.append(gameWinText, playAgain);
+  container.append(overlay);
+
+  document.getElementById("play").addEventListener("click", () => {
+    setTimeout(() => {
+      // window.location.reload();
+      overlay.remove();
+      bombsDeploy();
+      overlay.style.display = "none";
+      gameGrid.innerHTML = "";
+      renderGrid();
+    }, 600);
+    gameWinText.classList.add("return-top");
+    playAgain.classList.add("return-bottom");
+  });
+};
+
+/*************** GAME OVER DISPLAY ***************/
+
+const gameOver = () => {
+  let overlay = document.createElement("div");
+  overlay.className = "overlay";
+
+  let content = document.createElement("div");
+  content.id = "gameOverContent";
+  content.className = "content";
+
+  let gameOverText = document.createElement("div");
+  gameOverText.className = "gameOver-text";
+
+  gameOverText.innerHTML = `<h3>Game Over</h3>`;
+
+  let restart = document.createElement("div");
+  restart.className = "game-restart";
+
+  restart.innerHTML = `<span id = "restart">Restart</span>`;
+
+  overlay.append(content);
+  content.append(gameOverText, restart);
+  container.append(overlay);
+
+  document.getElementById("restart").addEventListener("click", () => {
+    setTimeout(() => {
+      window.location.reload();
+    }, 600);
+    gameOverText.classList.add("return-top");
+    restart.classList.add("return-bottom");
+  });
 };
 
 /*************** BOMBS DEPLOYE TO BOMBS ARRAY ***************/
@@ -93,10 +219,12 @@ const bombsDeploy = () => {
   for (let i = 0; i < size; i++) {
     for (let j = 0; j < size; j++) {
       bombsArray[i][j] = false;
+      winCheckArray[i][j] = true;
     }
     randomBombPosition = Math.trunc(Math.random() * size);
     bombsArray[i][randomBombPosition] = true;
   }
+  console.log(bombsArray);
 };
 bombsDeploy();
 
@@ -105,20 +233,25 @@ bombsDeploy();
 const findAllBombs = () => {
   for (let i = 0; i < size; i++) {
     for (let j = 0; j < size; j++) {
-      // console.log(i,j);
       if (bombsArray[i][j] === true) {
-        // console.log(`row${i}-${j}${bombsArray[i][j]}`);
-        document.getElementById(`gridItem-${i}-${j}`).classList.add("color");
+        document.getElementById(`gridItem-${i}-${j}`).classList.add("bomb");
       }
     }
   }
 };
 
 const flag = (e, i, j) => {
-  document.getElementById(`gridItem-${i}-${j}`).innerText = "Flag";
+  if (
+    e.target.classList.contains("emoji") ||
+    e.target.style.backgroundColor == "rgb(233, 233, 54)"
+  ) {
+    return;
+  } else {
+    e.target.classList.add("flag");
+  }
 };
 
-const detectEmptyBombArea = (e, i, j) => {
+const detectAllEmptyBombArea = (e, i, j) => {
   if (
     bombsArray[i][j + 1] === bombsArray[i][j - 1] &&
     bombsArray[i + 1][j] === bombsArray[i - 1][j] &&
@@ -126,6 +259,7 @@ const detectEmptyBombArea = (e, i, j) => {
     bombsArray[i - 1][j + 1] === bombsArray[i - 1][j - 1]
   ) {
     console.log("all gridItems are False");
+    e.target.classList.add("emoji");
   }
 };
 
@@ -133,22 +267,18 @@ const detectClosestBomb = (e, i, j) => {
   let bombsCounter = 0;
   if (bombsArray[i][j + 1] !== bombsArray[i][j - 1]) {
     bombsCounter++;
-    console.log("Right-Left Check:", bombsCounter);
     document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
   }
   if (bombsArray[i + 1][j] !== bombsArray[i - 1][j]) {
     bombsCounter++;
-    console.log("Up-Down Check:", bombsCounter);
     document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
   }
   if (bombsArray[i + 1][j + 1] !== bombsArray[i + 1][j - 1]) {
     bombsCounter++;
-    console.log("Down Right-Left Check:", bombsCounter);
     document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
   }
   if (bombsArray[i - 1][j + 1] !== bombsArray[i - 1][j - 1]) {
     bombsCounter++;
-    console.log("Up Right-Left Check:", bombsCounter);
     document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
   }
 };
@@ -157,36 +287,30 @@ const detectLeftColBombs = (e, i, j) => {
   let bombsCounter = 0;
   if (bombsArray[i][j + 1] === true) {
     bombsCounter++;
-    console.log(`gridItem${i}-${j + 1}`, bombsCounter);
     e.target.innerHTML = bombsCounter;
   }
   if (bombsArray[i + 1][j] !== bombsArray[i - 1][j]) {
     bombsCounter++;
-    console.log(`gridItem${i}-${j + 1}`, bombsCounter);
     e.target.innerHTML = bombsCounter;
   }
   if (bombsArray[i + 1][j + 1] !== bombsArray[i - 1][j + 1]) {
     bombsCounter++;
-    console.log(`gridItem${i}-${j + 1}`, bombsCounter);
     e.target.innerHTML = bombsCounter;
   }
 };
 
-const detectRightColBombs = () => {
+const detectRightColBombs = (e, i, j) => {
   let bombsCounter = 0;
   if (bombsArray[i][j - 1] === true) {
     bombsCounter++;
-    console.log(`gridItem${i}-${j + 1}`, bombsCounter);
     e.target.innerHTML = bombsCounter;
   }
   if (bombsArray[i + 1][j] !== bombsArray[i - 1][j]) {
     bombsCounter++;
-    console.log(`gridItem${i}-${j + 1}`, bombsCounter);
     e.target.innerHTML = bombsCounter;
   }
   if (bombsArray[i + 1][j - 1] !== bombsArray[i - 1][j - 1]) {
     bombsCounter++;
-    console.log(`gridItem${i}-${j + 1}`, bombsCounter);
     e.target.innerHTML = bombsCounter;
   }
 };
@@ -196,29 +320,19 @@ const detectTopRowBombs = (e, i, j) => {
   if (bombsArray[i][j - 1] === undefined) {
     if (bombsArray[i][j + 1] === true) {
       bombsCounter++;
-      console.log(`gridItem${i}-${j + 1}`, bombsCounter);
       e.target.innerHTML = bombsCounter;
     }
     if (bombsArray[i + 1][j] !== bombsArray[i + 1][j + 1]) {
       bombsCounter++;
-      console.log(
-        `gridItem${i + 1}-${j} & gridItem${i + 1}${j + 1}`,
-        bombsCounter
-      );
       e.target.innerHTML = bombsCounter;
     }
   } else if (bombsArray[i][j + 1] === undefined) {
     if (bombsArray[i][j - 1] === true) {
       bombsCounter++;
-      console.log(`gridItem${i}${j - 1}`, bombsCounter);
       e.target.innerHTML = bombsCounter;
     }
     if (bombsArray[i + 1][j] !== bombsArray[i + 1][j - 1]) {
       bombsCounter++;
-      console.log(
-        `gridItem${i + 1}-${j} & gridItem${i + 1}${j - 1}`,
-        bombsCounter
-      );
       e.target.innerHTML = bombsCounter;
     }
   }
@@ -228,22 +342,16 @@ const detectTopRowBombs = (e, i, j) => {
   ) {
     if (bombsArray[i + 1][j] === true) {
       bombsCounter++;
-      console.log(`gridItem${i + 1}${j}`, bombsCounter);
       document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
     }
 
     if (bombsArray[i][j + 1] !== bombsArray[i][j - 1]) {
       bombsCounter++;
-      console.log(`gridItem${i}-${j + 1} & gridItem${i}${j - 1}`, bombsCounter);
       document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
     }
 
     if (bombsArray[i + 1][j + 1] !== bombsArray[i + 1][j - 1]) {
       bombsCounter++;
-      console.log(
-        `gridItem${i + 1}-${j + 1} & gridItem${i + 1}${j - 1}`,
-        bombsCounter
-      );
       document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
     }
   }
@@ -254,29 +362,19 @@ const detectBottomRowBombs = (e, i, j) => {
   if (bombsArray[i][j - 1] === undefined) {
     if (bombsArray[i][j + 1] === true) {
       bombsCounter++;
-      console.log(`gridItem${i}-${j + 1}`, bombsCounter);
       e.target.innerHTML = bombsCounter;
     }
     if (bombsArray[i - 1][j] !== bombsArray[i - 1][j + 1]) {
       bombsCounter++;
-      console.log(
-        `gridItem${i - 1}-${j} & gridItem${i - 1}${j + 1}`,
-        bombsCounter
-      );
       e.target.innerHTML = bombsCounter;
     }
   } else if (bombsArray[i][j + 1] === undefined) {
     if (bombsArray[i][j - 1] === true) {
       bombsCounter++;
-      console.log(`gridItem${i}-${j - 1}`, bombsCounter);
       e.target.innerHTML = bombsCounter;
     }
     if (bombsArray[i - 1][j] !== bombsArray[i - 1][j - 1]) {
       bombsCounter++;
-      console.log(
-        `gridItem${i - 1}-${j} & gridItem${i - 1}${j - 1}`,
-        bombsCounter
-      );
       e.target.innerHTML = bombsCounter;
     }
   }
@@ -287,25 +385,16 @@ const detectBottomRowBombs = (e, i, j) => {
   ) {
     if (bombsArray[i - 1][j] === true) {
       bombsCounter++;
-      console.log(`gridItem${i - 1}${j}`, bombsCounter);
       document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
     }
 
     if (bombsArray[i][j + 1] !== bombsArray[i][j - 1]) {
       bombsCounter++;
-      console.log(
-        `gridItem${i}-${j + 1} & gridItem${i}-${j - 1}`,
-        bombsCounter
-      );
       document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
     }
 
     if (bombsArray[i - 1][j + 1] !== bombsArray[i - 1][j - 1]) {
       bombsCounter++;
-      console.log(
-        `gridItem${i - 1}-${j + 1} & gridItem${i - 1}${j - 1}`,
-        bombsCounter
-      );
       document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
     }
   }
