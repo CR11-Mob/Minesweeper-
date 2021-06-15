@@ -71,6 +71,7 @@ h3 {
   flex-direction: column;
   height: 100%;
   width: 50%;
+  min-width: 400px;
 }
 
 .grid-row {
