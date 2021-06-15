@@ -17,9 +17,11 @@ const timer = document.getElementById("timer");
 
 gameStartBtn.addEventListener("click", () => {
   startTimer();
+
   setTimeout(() => {
     overlay.style.display = "none";
   }, 600);
+  
   gameStartText.classList.add("return-top");
   gameStart.classList.add("return-bottom");
 });
@@ -36,10 +38,11 @@ const dynamicArray = (size) => {
   }
   return arr;
 };
+
 let winCheckArray = dynamicArray(size);
 let bombsArray = dynamicArray(size);
 
-/*************** DYNAMIC GRID RENDERING ***************/
+/*************** GRID RENDERING ***************/
 
 const renderGrid = () => {
   for (let i = 0; i < size; i++) {
@@ -74,37 +77,25 @@ const renderGrid = () => {
 };
 renderGrid();
 
-/*************** CLICK EVENT LISTENER FUNCTION ***************/
+/*************** CLICK EVENT LISTENER ***************/
 
 const clickHandler = (e, i, j) => {
   // console.log("gridItem", i, j);
   if (bombsArray[i][j] === false) {
     winCheckArray[i][j] = false;
 
+    let bombs = detectBombs(e, i, j);
+
     if (e.target.classList.contains("flag")) {
       e.target.classList.remove("flag");
     }
 
-    if (bombsArray[i - 1] === undefined) {
-      detectTopRowBombs(e, i, j);
-    } else if (bombsArray[i + 1] === undefined) {
-      detectBottomRowBombs(e, i, j);
-    } else if (
-      bombsArray[i][j + 1] !== undefined &&
-      bombsArray[i][j - 1] !== undefined
-    ) {
-      detectClosestBomb(e, i, j);
-    } else if (bombsArray[i][j - 1] === undefined) {
-      detectLeftColBombs(e, i, j);
-    } else if (bombsArray[i][j + 1] === undefined) {
-      detectRightColBombs(e, i, j);
-    }
-
-    if (e.target.innerHTML == "") {
+    if (bombs === 0) {
       e.target.style.backgroundColor = "rgb(79, 233, 79)";
       e.target.classList.add("emoji");
-    } else if (e.target.innerHTML !== null) {
+    } else if (bombs > 0) {
       e.target.style.backgroundColor = "rgb(233, 233, 54)";
+      e.target.innerHTML = bombs;
     }
   } else if (bombsArray[i][j] === true) {
     findAllBombs();
@@ -113,18 +104,32 @@ const clickHandler = (e, i, j) => {
 
   if (JSON.stringify(winCheckArray) == JSON.stringify(bombsArray)) {
     gameWin();
+    endTimer();
   }
 };
 
-/*************** START GAME TIMER ***************/
+/********** FLAG **********/
+
+const flag = (e, i, j) => {
+  if (
+    e.target.classList.contains("emoji") ||
+    e.target.style.backgroundColor == "rgb(233, 233, 54)"
+  ) {
+    return;
+  } else {
+    e.target.classList.add("flag");
+  }
+};
+
+/*************** GAME TIMER ***************/
 
 let interval = null;
-let mins = 0;
-let secs = 0;
 
 const startTimer = () => {
+  let mins = 0;
+  let secs = 0;
+
   interval = setInterval(() => {
-    console.log("interval start");
     let time = ("00" + mins).substr(-2) + ":" + ("00" + secs).substr(-2);
     timer.innerText = time;
     secs++;
@@ -140,11 +145,14 @@ const startTimer = () => {
     }
   }, 1000);
 };
-let endTimer = () => clearInterval(interval);
+
+const endTimer = () => clearInterval(interval);
 
 /*************** GAME WINNER DISPLAY ***************/
 
 const gameWin = () => {
+  endTimer();
+
   let overlay = document.createElement("div");
   overlay.className = "overlay";
 
@@ -168,13 +176,15 @@ const gameWin = () => {
 
   document.getElementById("play").addEventListener("click", () => {
     setTimeout(() => {
-      // window.location.reload();
       overlay.remove();
       bombsDeploy();
-      overlay.style.display = "none";
+
       gameGrid.innerHTML = "";
       renderGrid();
+
+      startTimer();
     }, 600);
+
     gameWinText.classList.add("return-top");
     playAgain.classList.add("return-bottom");
   });
@@ -183,6 +193,8 @@ const gameWin = () => {
 /*************** GAME OVER DISPLAY ***************/
 
 const gameOver = () => {
+  endTimer();
+
   let overlay = document.createElement("div");
   overlay.className = "overlay";
 
@@ -208,12 +220,13 @@ const gameOver = () => {
     setTimeout(() => {
       window.location.reload();
     }, 600);
+
     gameOverText.classList.add("return-top");
     restart.classList.add("return-bottom");
   });
 };
 
-/*************** BOMBS DEPLOYE TO BOMBS ARRAY ***************/
+/*************** BOMBS DEPLOYE ***************/
 
 const bombsDeploy = () => {
   for (let i = 0; i < size; i++) {
@@ -228,7 +241,7 @@ const bombsDeploy = () => {
 };
 bombsDeploy();
 
-/************** BOMBS DETECT FUNCTIONS **************/
+/************** BOMBS DETECT **************/
 
 const findAllBombs = () => {
   for (let i = 0; i < size; i++) {
@@ -240,162 +253,43 @@ const findAllBombs = () => {
   }
 };
 
-const flag = (e, i, j) => {
-  if (
-    e.target.classList.contains("emoji") ||
-    e.target.style.backgroundColor == "rgb(233, 233, 54)"
-  ) {
-    return;
-  } else {
-    e.target.classList.add("flag");
-  }
-};
+const detectBombs = (e, i, j) => {
+  let bombCounter = 0;
 
-const detectAllEmptyBombArea = (e, i, j) => {
-  if (
-    bombsArray[i][j + 1] === bombsArray[i][j - 1] &&
-    bombsArray[i + 1][j] === bombsArray[i - 1][j] &&
-    bombsArray[i + 1][j + 1] === bombsArray[i + 1][j - 1] &&
-    bombsArray[i - 1][j + 1] === bombsArray[i - 1][j - 1]
-  ) {
-    console.log("all gridItems are False");
-    e.target.classList.add("emoji");
-  }
-};
+  /*** UP ***/
+  if (i - 1 >= 0 && bombsArray[i - 1][j] === true) bombCounter++;
 
-const detectClosestBomb = (e, i, j) => {
-  let bombsCounter = 0;
-  if (bombsArray[i][j + 1] !== bombsArray[i][j - 1]) {
-    bombsCounter++;
-    document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
-  }
-  if (bombsArray[i + 1][j] !== bombsArray[i - 1][j]) {
-    bombsCounter++;
-    document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
-  }
-  if (bombsArray[i + 1][j + 1] !== bombsArray[i + 1][j - 1]) {
-    bombsCounter++;
-    document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
-  }
-  if (bombsArray[i - 1][j + 1] !== bombsArray[i - 1][j - 1]) {
-    bombsCounter++;
-    document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
-  }
-};
+  /*** DOWN ***/
 
-const detectLeftColBombs = (e, i, j) => {
-  let bombsCounter = 0;
-  if (bombsArray[i][j + 1] === true) {
-    bombsCounter++;
-    e.target.innerHTML = bombsCounter;
-  }
-  if (bombsArray[i + 1][j] !== bombsArray[i - 1][j]) {
-    bombsCounter++;
-    e.target.innerHTML = bombsCounter;
-  }
-  if (bombsArray[i + 1][j + 1] !== bombsArray[i - 1][j + 1]) {
-    bombsCounter++;
-    e.target.innerHTML = bombsCounter;
-  }
-};
+  if (i + 1 < size && bombsArray[i + 1][j] === true) bombCounter++;
 
-const detectRightColBombs = (e, i, j) => {
-  let bombsCounter = 0;
-  if (bombsArray[i][j - 1] === true) {
-    bombsCounter++;
-    e.target.innerHTML = bombsCounter;
-  }
-  if (bombsArray[i + 1][j] !== bombsArray[i - 1][j]) {
-    bombsCounter++;
-    e.target.innerHTML = bombsCounter;
-  }
-  if (bombsArray[i + 1][j - 1] !== bombsArray[i - 1][j - 1]) {
-    bombsCounter++;
-    e.target.innerHTML = bombsCounter;
-  }
-};
+  /*** LEFT ***/
 
-const detectTopRowBombs = (e, i, j) => {
-  let bombsCounter = 0;
-  if (bombsArray[i][j - 1] === undefined) {
-    if (bombsArray[i][j + 1] === true) {
-      bombsCounter++;
-      e.target.innerHTML = bombsCounter;
-    }
-    if (bombsArray[i + 1][j] !== bombsArray[i + 1][j + 1]) {
-      bombsCounter++;
-      e.target.innerHTML = bombsCounter;
-    }
-  } else if (bombsArray[i][j + 1] === undefined) {
-    if (bombsArray[i][j - 1] === true) {
-      bombsCounter++;
-      e.target.innerHTML = bombsCounter;
-    }
-    if (bombsArray[i + 1][j] !== bombsArray[i + 1][j - 1]) {
-      bombsCounter++;
-      e.target.innerHTML = bombsCounter;
-    }
-  }
-  if (
-    bombsArray[i][j - 1] !== undefined &&
-    bombsArray[i][j + 1] !== undefined
-  ) {
-    if (bombsArray[i + 1][j] === true) {
-      bombsCounter++;
-      document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
-    }
+  if (j - 1 >= 0 && bombsArray[i][j - 1] === true) bombCounter++;
 
-    if (bombsArray[i][j + 1] !== bombsArray[i][j - 1]) {
-      bombsCounter++;
-      document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
-    }
+  /*** RIGHT ***/
 
-    if (bombsArray[i + 1][j + 1] !== bombsArray[i + 1][j - 1]) {
-      bombsCounter++;
-      document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
-    }
-  }
-};
+  if (j + 1 < size && bombsArray[i][j + 1] === true) bombCounter++;
 
-const detectBottomRowBombs = (e, i, j) => {
-  let bombsCounter = 0;
-  if (bombsArray[i][j - 1] === undefined) {
-    if (bombsArray[i][j + 1] === true) {
-      bombsCounter++;
-      e.target.innerHTML = bombsCounter;
-    }
-    if (bombsArray[i - 1][j] !== bombsArray[i - 1][j + 1]) {
-      bombsCounter++;
-      e.target.innerHTML = bombsCounter;
-    }
-  } else if (bombsArray[i][j + 1] === undefined) {
-    if (bombsArray[i][j - 1] === true) {
-      bombsCounter++;
-      e.target.innerHTML = bombsCounter;
-    }
-    if (bombsArray[i - 1][j] !== bombsArray[i - 1][j - 1]) {
-      bombsCounter++;
-      e.target.innerHTML = bombsCounter;
-    }
-  }
+  /*** UP-LEFT ***/
 
-  if (
-    bombsArray[i][j - 1] !== undefined &&
-    bombsArray[i][j + 1] !== undefined
-  ) {
-    if (bombsArray[i - 1][j] === true) {
-      bombsCounter++;
-      document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
-    }
+  if (i - 1 >= 0 && j - 1 >= 0 && bombsArray[i - 1][j - 1] === true)
+    bombCounter++;
 
-    if (bombsArray[i][j + 1] !== bombsArray[i][j - 1]) {
-      bombsCounter++;
-      document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
-    }
+  /*** UP-RIGHT ***/
 
-    if (bombsArray[i - 1][j + 1] !== bombsArray[i - 1][j - 1]) {
-      bombsCounter++;
-      document.getElementById(`gridItem-${i}-${j}`).innerHTML = bombsCounter;
-    }
-  }
+  if (i - 1 >= 0 && j + 1 < size && bombsArray[i - 1][j + 1] === true)
+    bombCounter++;
+
+  /*** DOWN-LEFT ***/
+
+  if (i + 1 < size && j - 1 >= 0 && bombsArray[i + 1][j - 1] === true)
+    bombCounter++;
+
+  /*** DOWN-RIGHT ***/
+
+  if (i + 1 < size && j + 1 < size && bombsArray[i + 1][j + 1] === true)
+    bombCounter++;
+
+  return bombCounter;
 };
