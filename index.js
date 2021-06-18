@@ -31,7 +31,7 @@ gameStartBtn.addEventListener("click", () => {
 let size = 6;
 
 const dynamicArray = (size) => {
-  arr = [];
+  let arr = [];
 
   for (let i = 0; i < size; i++) {
     arr.push([]);
@@ -234,7 +234,7 @@ const bombsDeploy = () => {
       bombsArray[i][j] = false;
       winCheckArray[i][j] = true;
     }
-    randomBombPosition = Math.trunc(Math.random() * size);
+    let randomBombPosition = Math.trunc(Math.random() * size);
     bombsArray[i][randomBombPosition] = true;
   }
   console.log(bombsArray);
