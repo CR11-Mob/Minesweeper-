@@ -38,7 +38,7 @@ h3 {
 .timer-icon {
   height: 50%;
   width: 3%;
-  background: url(./images/timer_white_24dp.svg) no-repeat;
+  background: url(images/timer_white_24dp.svg) no-repeat;
   background-size: 70%;
   background-position: center;
 }
@@ -99,7 +99,7 @@ h3 {
 
 .emoji {
   /* background-color: rgb(79, 233, 79); */
-  background-image: url(/images/Minesweeper-emoji.png);
+  background-image: url(images/Minesweeper-emoji.png);
   background-repeat: no-repeat;
   background-size: 50%;
   background-position: center;
@@ -107,7 +107,7 @@ h3 {
 
 .bomb {
   background-color: rgb(230, 85, 63);
-  background-image: url(/images/Minesweeper-Bomb2.png);
+  background-image: url(images/Minesweeper-Bomb2.png);
   background-repeat: no-repeat;
   background-size: 50%;
   background-position: center;
@@ -115,7 +115,7 @@ h3 {
 
 .flag {
   background-color: rgba(129, 209, 253, 1);
-  background-image: url(/images/Minesweeper-Flag.png);
+  background-image: url(images/Minesweeper-Flag.png);
   background-repeat: no-repeat;
   background-size: 50%;
   background-position: center;
